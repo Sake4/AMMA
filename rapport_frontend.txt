@@ -1,0 +1,46 @@
+Partie 1 : Frontend
+
+
+1. Présentation du projet
+
+AMMA est une application mobile destinée aux professeurs. Elle leur permet de gérer leurs classes, de consulter la liste de leurs élèves et d'enregistrer les notes par matière. L'application est développée avec React Native via le framework Expo, ce qui permet un déploiement sur Android et iOS à partir d'un seul code source.
+
+
+2. Objectif de cette partie
+
+Cette première partie couvre l'intégralité de l'interface utilisateur de l'application. Toutes les pages ont été conçues et implémentées conformément aux maquettes établies en amont. Les données affichées sont pour l'instant statiques (données de test) et seront remplacées par de vraies données issues de l'API lors de l'intégration du backend.
+
+
+3. Pages développées
+
+Page 1 — SplashScreen
+Écran de démarrage affiché au lancement de l'application. Il présente le logo de l'application pendant 2,5 secondes avec une animation d'apparition, puis redirige automatiquement vers la page de connexion via un fondu enchaîné.
+
+Page 2 — Connexion
+Page d'authentification du professeur. Elle contient un champ matricule, un champ mot de passe avec option d'affichage, un bouton de connexion et un lien vers la page d'inscription. Une validation basique est effectuée côté client avant l'envoi.
+
+Page 3 — Inscription
+Formulaire d'inscription destiné aux nouveaux professeurs. Il collecte les informations suivantes : nom, prénom, matricule, classe enseignée, matière (via un menu déroulant) et mot de passe avec confirmation. Des validations sont effectuées avant soumission (champs requis, correspondance des mots de passe, longueur minimale).
+
+Page 4 — Bienvenue
+Page affichée après la connexion. Elle présente au professeur la liste de ses classes sous forme de cartes cliquables. Chaque carte affiche le nom de la classe et la matière enseignée. En cliquant sur une classe, le professeur est dirigé vers la page d'accueil correspondante.
+
+Page 5 — Accueil
+Tableau de bord principal. Il affiche un en-tête avec le nom de la classe active et une barre de navigation en bas avec trois onglets : Accueil, Notes et Ajouter. L'onglet Ajouter (cahier de texte) affiche un message d'alerte indiquant que cette fonctionnalité sera disponible prochainement.
+
+Page 6 — Notes
+Page de gestion des notes. Elle liste tous les élèves de la classe avec leurs notes et leur moyenne calculée automatiquement. Un bouton permet d'ajouter une note à un élève via une fenêtre modale. La saisie est validée (valeur entre 0 et 20).
+
+
+4. Navigation
+
+La navigation entre les pages est gérée par React Navigation v6 avec un Stack Navigator. Des animations de transition ont été configurées pour chaque page (fondu, glissement) afin d'assurer une expérience fluide. Le fichier App.js centralise toute la configuration de la navigation.
+
+
+5. Ce qui reste à faire
+
+- Partie 2 : Backend — Mise en place du serveur API avec Node.js et Express, connexion à la base de données MongoDB Atlas, implémentation des routes d'authentification et de gestion des notes.
+
+- Partie 3 : Intégration — Connexion du frontend à l'API, remplacement des données de test par de vraies données, gestion de la session utilisateur avec JWT.
+
+- Partie 4 : Déploiement — Déploiement du backend sur une plateforme cloud et tests finaux.
