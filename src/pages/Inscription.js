@@ -2,11 +2,13 @@ import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, Image, Alert, KeyboardAvoidingView,
-  Platform, ScrollView,
+  Platform, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { inscription } from '../../services/api';
 
 const MATIERES = [
   'Mathématiques', 'Français', 'Physique-Chimie', 'SVT',
@@ -40,8 +42,9 @@ export default function Inscription({ navigation }) {
   const [confirmMdp, setConfirmMdp] = useState('');
   const [mdpVisible, setMdpVisible] = useState(false);
   const [matiereOpen, setMatiereOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleInscription = () => {
+  const handleInscription = async () => {
     if (!nom || !prenom || !matricule || !classe || !matiere || !motDePasse || !confirmMdp) {
       Alert.alert('Champs requis', 'Veuillez remplir tous les champs.');
       return;
@@ -54,8 +57,21 @@ export default function Inscription({ navigation }) {
       Alert.alert('Mot de passe trop court', 'Minimum 6 caractères.');
       return;
     }
-    // TODO: appel API inscription
-    navigation.navigate('Bienvenue');
+
+    setLoading(true);
+    try {
+      const data = await inscription({ nom, prenom, matricule, classe, matiere, motDePasse });
+
+      // Sauvegarder le token et les infos du prof
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('prof', JSON.stringify(data.prof));
+
+      navigation.replace('Bienvenue', { prof: data.prof });
+    } catch (err) {
+      Alert.alert('Erreur', err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,39 +91,20 @@ export default function Inscription({ navigation }) {
           <Text style={styles.titre}>Formulaire d'inscription</Text>
           <Text style={styles.sousTitre}>Informations du professeur</Text>
 
-          {/* Identité */}
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Identité</Text>
-            <Field
-              label="Nom" value={nom} onChangeText={setNom}
-              placeholder="Votre nom" icon="person-outline" capitalize="words"
-            />
-            <Field
-              label="Prénom" value={prenom} onChangeText={setPrenom}
-              placeholder="Votre prénom" icon="person-outline" capitalize="words"
-            />
-            <Field
-              label="Matricule" value={matricule} onChangeText={setMatricule}
-              placeholder="Ex : PROF-2024-001" icon="card-outline" capitalize="characters"
-            />
+            <Field label="Nom" value={nom} onChangeText={setNom} placeholder="Votre nom" icon="person-outline" capitalize="words" />
+            <Field label="Prénom" value={prenom} onChangeText={setPrenom} placeholder="Votre prénom" icon="person-outline" capitalize="words" />
+            <Field label="Matricule" value={matricule} onChangeText={setMatricule} placeholder="Ex : PROF-2024-001" icon="card-outline" capitalize="characters" />
           </View>
 
-          {/* Classe & Matière */}
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Classe & Matière</Text>
-            <Field
-              label="Classe enseignée" value={classe} onChangeText={setClasse}
-              placeholder="Ex : 6ème A, Terminale S" icon="school-outline" capitalize="characters"
-            />
+            <Field label="Classe enseignée" value={classe} onChangeText={setClasse} placeholder="Ex : 6ème A" icon="school-outline" capitalize="characters" />
 
-            {/* Dropdown matière */}
             <View style={styles.fieldWrapper}>
               <Text style={styles.label}>Matière enseignée</Text>
-              <TouchableOpacity
-                style={styles.inputWrapper}
-                onPress={() => setMatiereOpen(!matiereOpen)}
-                activeOpacity={0.8}
-              >
+              <TouchableOpacity style={styles.inputWrapper} onPress={() => setMatiereOpen(!matiereOpen)} activeOpacity={0.8}>
                 <Ionicons name="book-outline" size={17} color="#aaa" style={styles.inputIcon} />
                 <Text style={[styles.input, !matiere && { color: '#bbb' }]}>
                   {matiere || 'Sélectionner une matière'}
@@ -131,10 +128,8 @@ export default function Inscription({ navigation }) {
             </View>
           </View>
 
-          {/* Sécurité */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Sécurité</Text>
-
+            <Text style={styles.sectionLabel}>🔒 Sécurité</Text>
             <View style={styles.fieldWrapper}>
               <Text style={styles.label}>Mot de passe</Text>
               <View style={styles.inputWrapper}>
@@ -152,7 +147,6 @@ export default function Inscription({ navigation }) {
                 </TouchableOpacity>
               </View>
             </View>
-
             <View style={styles.fieldWrapper}>
               <Text style={styles.label}>Confirmer le mot de passe</Text>
               <View style={styles.inputWrapper}>
@@ -169,8 +163,11 @@ export default function Inscription({ navigation }) {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.bouton} onPress={handleInscription} activeOpacity={0.85}>
-            <Text style={styles.boutonTexte}>S'inscrire</Text>
+          <TouchableOpacity style={styles.bouton} onPress={handleInscription} activeOpacity={0.85} disabled={loading}>
+            {loading
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.boutonTexte}>S'inscrire</Text>
+            }
           </TouchableOpacity>
 
         </ScrollView>
